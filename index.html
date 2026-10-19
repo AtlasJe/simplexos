@@ -1933,7 +1933,7 @@
             renderNoteList();
             titleInputEl.focus(); // Focus the new title input
         };
-        const deleteNote = async (id) => { if (await showOSConfirmDanger('Permanently delete this note?')) { notes = notes.filter(n => n.id !== id); hasUnsavedChanges = false; if (currentNoteId === id) { currentNoteId = null; selectNote(); } localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes)); renderNoteList(); } };
+        const deleteNote = async (id) => { if (await showOSConfirmDanger('Permanently delete this note?')) { const note = notes.find(n => n.id === id); if (note?.filePath) await fileManagerDbRequest('readwrite', store => store.delete(note.filePath)); notes = notes.filter(n => n.id !== id); hasUnsavedChanges = false; if (currentNoteId === id) { currentNoteId = null; selectNote(); } localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes)); renderNoteList(); } };
         const handleLinkCreation = async () => { editorEl.focus(); const selection = window.getSelection(); if (!selection || selection.rangeCount === 0) return; const range = selection.getRangeAt(0); const selectedText = selection.toString(); const url = await showOSPrompt('Enter the full URL:', 'Create Link', selectedText.startsWith('http') ? selectedText : 'https://'); if (!url) return; selection.removeAllRanges(); selection.addRange(range); document.execCommand('createLink', false, url); const parentElement = selection.anchorNode.parentElement; if (parentElement && parentElement.tagName === 'A') { parentElement.target = '_blank'; parentElement.rel = 'noopener noreferrer'; } scheduleSave(); };
 
         // --- Export, Backup, Restore, and Clear ---
