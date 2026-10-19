@@ -709,7 +709,7 @@
                     // Added font family selector to the toolbar
                     contentEl.innerHTML = `<div class="textpad-app">
                         <div class="textpad-toolbar">
-                            <button id="textpad-save-${windowId}" title="Save As..."><i class="fa-solid fa-save"></i> Save</button>
+                            <button id="textpad-save-${windowId}" title="Save"><i class="fa-solid fa-save"></i> Save</button><button id="textpad-save-in-${windowId}" title="Save In"><i class="fa-solid fa-file-export"></i> Save In</button>
                             <div class="separator"></div>
                             <label for="textpad-font-family-${windowId}" style="margin: 0 4px 0 8px; font-size: 0.9em;">Font:</label>
                             <select id="textpad-font-family-${windowId}" title="Change Font Family" style="padding: 4px 6px; border-radius: 3px; border: 1px solid var(--border-primary); background-color: var(--paint-toolbar-button-bg); color: var(--paint-toolbar-text); cursor: pointer; max-width: 150px; font-size: 0.9em;"></select>
@@ -725,6 +725,8 @@
 
                     const textarea = contentEl.querySelector(`#textpad-textarea-${windowId}`);
                     const saveButton = contentEl.querySelector(`#textpad-save-${windowId}`);
+                    const saveInButton = contentEl.querySelector(`#textpad-save-in-${windowId}`);
+                    let savedFilePath = null;
                     const fontIncButton = contentEl.querySelector(`#textpad-font-inc-${windowId}`);
                     const fontDecButton = contentEl.querySelector(`#textpad-font-dec-${windowId}`);
                     const fontSizeIndicator = contentEl.querySelector(`#textpad-font-size-indicator-${windowId}`);
@@ -813,19 +815,9 @@
                         saveStyle();
                     });
 
-                    saveButton.addEventListener('click', async () => {
-                        const textContent = textarea.value;
-                        const defaultFilename = "textpad_content.txt";
-                         const filename = await showOSDialog({ // Assuming showOSDialog is globally available
-                            title: 'Save Text File', message: 'Save file as:', type: 'prompt', defaultValue: defaultFilename,
-                            buttons: [ { label: 'Cancel', value: null }, { label: 'Save', value: true, class: 'success' } ]
-                        });
-                        if (filename === null || filename.trim() === "") return;
-                        const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a'); a.href = url; a.download = filename.endsWith('.txt') ? filename : filename + '.txt';
-                        a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                    });
+                    const saveTextFile = async (saveAs = false) => { let path = saveAs ? null : savedFilePath; if (!path) { path = await showOSPrompt('Enter the File Manager path (for example Notes/text.txt):', 'Save Text In', 'textpad_content.txt'); if (!path) return; if (!path.toLowerCase().endsWith('.txt')) path += '.txt'; } const req = indexedDB.open('simplexos-file-manager', 2); req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('entries')) req.result.createObjectStore('entries', {keyPath: 'path'}); }; req.onsuccess = () => { const db = req.result, tx = db.transaction('entries', 'readwrite'); tx.objectStore('entries').put({path, name: path.split('/').pop(), kind: 'file', data: new Blob([textarea.value], {type: 'text/plain;charset=utf-8'})}); tx.oncomplete = () => { db.close(); savedFilePath = path; showOSAlert(`Saved in File Manager as ${path}`, 'Text Saved'); }; tx.onerror = () => showOSAlert('Could not save the text file.', 'Save Error'); }; };
+                    saveButton.addEventListener('click', () => saveTextFile(false));
+                    saveInButton.addEventListener('click', () => saveTextFile(true));
 
                     if (openWindows[windowId]) { openWindows[windowId].cleanup = () => { window.removeEventListener('simplexos-open-file', managedFileHandler); }; }
                     // Load and apply initial style
@@ -2002,6 +1994,8 @@
         const goBack = async () => { if (!current) return; const parts = current.split('/').filter(Boolean); parts.pop(); current = parts.length ? `${parts.join('/')}/` : ''; back.disabled = !current; await refreshInternal(); };
         back.addEventListener('click', goBack);
         list.addEventListener('dblclick', () => setTimeout(() => { back.disabled = !current; }, 0));
+        const addMoveButtons = () => { list.querySelectorAll('.file-manager-row').forEach(row => { if (row.querySelector('.fm-move')) return; const button = document.createElement('button'); button.className = 'fm-move'; button.title = 'Move'; button.innerHTML = '<i class="fa-solid fa-up-down-left-right"></i>'; button.onclick = async event => { event.stopPropagation(); const oldPath = `${current || ''}${row.querySelector('.file-manager-name').textContent.trim()}`; const destination = await showOSPrompt('Enter the new path (for example Documents/file.txt):', 'Move item', oldPath); if (!destination || destination === oldPath) return; const all = await getAll(); const entry = all.find(item => item.path === oldPath); if (!entry) return; const newPath = destination.endsWith('/') && entry.kind === 'directory' ? destination : destination + (entry.kind === 'directory' ? '/' : ''); await dbRequest('readwrite', store => { const affected = all.filter(item => item.path === oldPath || (entry.kind === 'directory' && item.path.startsWith(oldPath + '/'))); affected.forEach(item => { store.delete(item.path); store.put({...item, path: newPath + item.path.slice(oldPath.length)}); }); }); await refreshInternal(); }; row.appendChild(button); }); };
+        new MutationObserver(addMoveButtons).observe(list, {childList: true});
         // Internal Simplex OS storage: files are stored as blobs in IndexedDB.
         pick.style.display = 'none';
         const dbOpen = () => new Promise((resolve, reject) => { const req = indexedDB.open('simplexos-file-manager', 2); req.onupgradeneeded = () => { const db = req.result; if (!db.objectStoreNames.contains('entries')) db.createObjectStore('entries', {keyPath: 'path'}); }; req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); });
