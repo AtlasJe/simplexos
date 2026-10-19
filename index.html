@@ -727,11 +727,12 @@
                     const saveButton = contentEl.querySelector(`#textpad-save-${windowId}`);
                     const saveInButton = contentEl.querySelector(`#textpad-save-in-${windowId}`);
                     let savedFilePath = null;
+                    let textPadDirty = false;
                     const fontIncButton = contentEl.querySelector(`#textpad-font-inc-${windowId}`);
                     const fontDecButton = contentEl.querySelector(`#textpad-font-dec-${windowId}`);
                     const fontSizeIndicator = contentEl.querySelector(`#textpad-font-size-indicator-${windowId}`);
                     const fontFamilySelect = contentEl.querySelector(`#textpad-font-family-${windowId}`);
-                    const managedFileHandler = async (event) => { const file = event.detail?.file; if (event.detail?.target !== 'TextPad' || !file) return; textarea.value = await file.text(); textarea.dispatchEvent(new Event('input', {bubbles: true})); };
+                    const managedFileHandler = async (event) => { const file = event.detail?.file; if (event.detail?.target !== 'TextPad' || !file) return; textarea.value = await file.text(); textPadDirty = false; };
                     window.addEventListener('simplexos-open-file', managedFileHandler);
 
                     const TEXTPAD_STYLE_KEY = 'textpad_style_v1';
@@ -816,10 +817,13 @@
                     });
 
                     const saveTextFile = async (saveAs = false) => { let path = saveAs ? null : savedFilePath; if (!path) { path = await showOSPrompt('Enter the File Manager path (for example Notes/text.txt):', 'Save Text In', 'textpad_content.txt'); if (!path) return; if (!path.toLowerCase().endsWith('.txt')) path += '.txt'; } const req = indexedDB.open('simplexos-file-manager', 2); req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('entries')) req.result.createObjectStore('entries', {keyPath: 'path'}); }; req.onsuccess = () => { const db = req.result, tx = db.transaction('entries', 'readwrite'); tx.objectStore('entries').put({path, name: path.split('/').pop(), kind: 'file', data: new Blob([textarea.value], {type: 'text/plain;charset=utf-8'})}); tx.oncomplete = () => { db.close(); savedFilePath = path; showOSAlert(`Saved in File Manager as ${path}`, 'Text Saved'); }; tx.onerror = () => showOSAlert('Could not save the text file.', 'Save Error'); }; };
-                    saveButton.addEventListener('click', () => saveTextFile(false));
-                    saveInButton.addEventListener('click', () => saveTextFile(true));
+                    textarea.addEventListener('input', () => { textPadDirty = true; });
+                    saveButton.addEventListener('click', async () => { await saveTextFile(false); textPadDirty = false; });
+                    saveInButton.addEventListener('click', async () => { await saveTextFile(true); textPadDirty = false; });
 
-                    if (openWindows[windowId]) { openWindows[windowId].cleanup = () => { window.removeEventListener('simplexos-open-file', managedFileHandler); }; }
+                    const textPadBeforeUnload = (event) => { if (textPadDirty) { event.preventDefault(); event.returnValue = ''; } };
+                    window.addEventListener('beforeunload', textPadBeforeUnload);
+                    if (openWindows[windowId]) { openWindows[windowId].cleanup = () => { if (textPadDirty && !confirm('Text Pad has unsaved changes. Close without saving?')) return false; window.removeEventListener('simplexos-open-file', managedFileHandler); window.removeEventListener('beforeunload', textPadBeforeUnload); }; }
                     // Load and apply initial style
                     loadStyle();
                  } },
@@ -1824,6 +1828,7 @@
         let notes = [];
         let currentNoteId = null;
         let saveTimeout = null;
+        let hasUnsavedChanges = false;
 
         // --- Helper Functions ---
         const formatDate = (timestamp) => { try { const d = new Date(timestamp); const now = new Date(); if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); return d.toLocaleDateString(); } catch { return '...'; } };
@@ -1883,7 +1888,7 @@
                 showOSAlert("Failed to save notes. Storage may be full.", "Save Error");
             }
         };
-        const scheduleSave = () => { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => saveNotes(true), 1000); };
+        const scheduleSave = () => { hasUnsavedChanges = true; };
         const renderNoteList = () => {
             notesListEl.innerHTML = '';
             notes.sort((a, b) => (b.lastModified || 0) - (a.lastModified || 0));
@@ -1893,7 +1898,7 @@
             noteCountEl.textContent = `Notes: ${notes.length}${query ? ` (found ${filtered.length})` : ''}`;
         };
         const selectNote = (id) => {
-            if (saveTimeout) { clearTimeout(saveTimeout); saveNotes(true); }
+            if (hasUnsavedChanges && !confirm('This note has unsaved changes. Discard them?')) return;
             if (!id && notes.length > 0) id = notes[0].id;
             if (!id) {
                 editorEl.innerHTML = ''; editorEl.contentEditable = false;
@@ -1921,7 +1926,7 @@
             const newNote = { id: now, createdAt: now, title: 'New Note', body: '<p>Start writing here...</p>', lastModified: now };
             notes.unshift(newNote);
             selectNote(newNote.id);
-            saveNotes();
+            renderNoteList();
             titleInputEl.focus(); // Focus the new title input
         };
         const deleteNote = async (id) => { if (await showOSConfirmDanger('Permanently delete this note?')) { notes = notes.filter(n => n.id !== id); if (currentNoteId === id) { currentNoteId = null; selectNote(); } saveNotes(); } };
@@ -1963,8 +1968,8 @@
         editorEl.addEventListener('click', async (e) => { if (e.target.tagName === 'A' && e.target.href) { e.preventDefault(); if (await showOSConfirm(`Open this link in a new tab?\n\n${e.target.href}`, 'Open External Link')) window.open(e.target.href, '_blank', 'noopener,noreferrer'); } });
         editorEl.addEventListener('input', scheduleSave);
         titleInputEl.addEventListener('input', scheduleSave);
-        editorEl.addEventListener('blur', () => { if (saveTimeout) { clearTimeout(saveTimeout); saveNotes(true); } });
-        titleInputEl.addEventListener('blur', () => { if (saveTimeout) { clearTimeout(saveTimeout); saveNotes(true); } });
+        editorEl.addEventListener('blur', () => {});
+        titleInputEl.addEventListener('blur', () => {});
         searchInput.addEventListener('input', renderNoteList);
         addNoteBtn.addEventListener('click', addNewNote);
         backupBtn.addEventListener('click', handleBackup);
@@ -1972,12 +1977,14 @@
         clearAllBtn.addEventListener('click', handleClearAll);
         exportTxtBtn.addEventListener('click', () => handleExport('txt'));
         exportHtmlBtn.addEventListener('click', () => handleExport('html'));
-        saveBtn.addEventListener('click', () => saveNoteToFileManager(false));
-        saveInBtn.addEventListener('click', () => saveNoteToFileManager(true));
+        saveBtn.addEventListener('click', async () => { await saveNoteToFileManager(false); hasUnsavedChanges = false; });
+        saveInBtn.addEventListener('click', async () => { await saveNoteToFileManager(true); hasUnsavedChanges = false; });
 
         // --- Initialization & Cleanup ---
         loadNotes();
-        if (openWindows[windowId]) { openWindows[windowId].cleanup = () => { clearTimeout(saveTimeout); if (currentNoteId) saveNotes(false); }; }
+        const notesBeforeUnload = (event) => { if (hasUnsavedChanges) { event.preventDefault(); event.returnValue = ''; } };
+        window.addEventListener('beforeunload', notesBeforeUnload);
+        if (openWindows[windowId]) { openWindows[windowId].cleanup = () => { if (hasUnsavedChanges && !confirm('This note has unsaved changes. Close without saving?')) return false; clearTimeout(saveTimeout); window.removeEventListener('beforeunload', notesBeforeUnload); }; }
     }
 },
                 <!-- -----------------------------------------------------------------------------
@@ -2631,7 +2638,7 @@
             function minimizeWindow(windowId) { const appWindow = openWindows[windowId]; if (!appWindow || appWindow.isMinimized) return; appWindow.element.classList.add('minimized'); appWindow.element.classList.remove('active'); appWindow.isMinimized = true; const btn = document.getElementById(`taskbar-${windowId}`); if (btn) { btn.classList.add('minimized'); btn.classList.remove('active'); } if (activeWindowId === windowId) activeWindowId = null; }
             function maximizeWindow(windowId) { const appWindow = openWindows[windowId]; if (!appWindow || appWindow.isMaximized) return; appWindow.savedPosition = { left: appWindow.element.style.left, top: appWindow.element.style.top }; appWindow.savedSize = { width: appWindow.element.style.width, height: appWindow.element.style.height }; appWindow.element.classList.add('maximized'); appWindow.element.style.resize = 'none'; appWindow.isMaximized = true; const maxBtn = appWindow.element.querySelector('.maximize-button'); if(maxBtn) { maxBtn.title="Restore"; maxBtn.innerHTML='<i class="fa-solid fa-window-restore"></i>'; } focusWindow(windowId); }
             function restoreWindow(windowId) { const appWindow = openWindows[windowId]; if (!appWindow) return; const wasMinimized = appWindow.isMinimized; const wasMaximized = appWindow.isMaximized; appWindow.element.classList.remove('minimized'); appWindow.isMinimized = false; if (wasMaximized && appWindow.savedPosition && appWindow.savedSize) { appWindow.element.classList.remove('maximized'); appWindow.element.style.left = appWindow.savedPosition.left; appWindow.element.style.top = appWindow.savedPosition.top; appWindow.element.style.width = appWindow.savedSize.width; appWindow.element.style.height = appWindow.savedSize.height; appWindow.element.style.resize = 'both'; appWindow.isMaximized = false; const maxBtn = appWindow.element.querySelector('.maximize-button'); if(maxBtn) { maxBtn.title="Maximize"; maxBtn.innerHTML='<i class="fa-solid fa-window-maximize"></i>'; } } else if (wasMaximized && !wasMinimized) { appWindow.element.classList.remove('maximized'); let restoreW = 450, restoreH = 350; if(appWindow.savedSize) { restoreW = parseInt(appWindow.savedSize.width) || restoreW; restoreH = parseInt(appWindow.savedSize.height) || restoreH; } appWindow.element.style.width = `${restoreW}px`; appWindow.element.style.height = `${restoreH}px`; appWindow.element.style.left = appWindow.savedPosition?.left || '50px'; appWindow.element.style.top = appWindow.savedPosition?.top || '50px'; appWindow.element.style.resize = 'both'; appWindow.isMaximized = false; const maxBtn = appWindow.element.querySelector('.maximize-button'); if(maxBtn) { maxBtn.title="Maximize"; maxBtn.innerHTML='<i class="fa-solid fa-window-maximize"></i>'; } } focusWindow(windowId); }
-            function closeWindow(windowId) { const appWindow = openWindows[windowId]; if (!appWindow) return; if (appWindow.cleanup) { try { appWindow.cleanup(); } catch (err) { console.error(`Cleanup err ${appWindow.appId}:`, err); } } appWindow.element.remove(); removeTaskbarButton(windowId); delete openWindows[windowId]; if (activeWindowId === windowId) activeWindowId = null; adjustTaskbarHeight(); }
+            function closeWindow(windowId) { const appWindow = openWindows[windowId]; if (!appWindow) return; if (appWindow.cleanup) { try { if (appWindow.cleanup() === false) return; } catch (err) { console.error(`Cleanup err ${appWindow.appId}:`, err); } } appWindow.element.remove(); removeTaskbarButton(windowId); delete openWindows[windowId]; if (activeWindowId === windowId) activeWindowId = null; adjustTaskbarHeight(); }
             function createTaskbarButton(windowId, appName, appIconHtml) { const button = document.createElement('button'); button.className = 'taskbar-app-button'; button.id = `taskbar-${windowId}`; button.innerHTML = `${appIconHtml} <span class="taskbar-app-name">${appName.substring(0, 15)}${appName.length > 15 ? '...' : ''}</span>`; button.title = appName; button.addEventListener('click', () => { if (activeWindowId === windowId && !openWindows[windowId]?.isMinimized) minimizeWindow(windowId); else restoreWindow(windowId); }); taskbarApps.appendChild(button); taskbarApps.scrollLeft = taskbarApps.scrollWidth; }
             function removeTaskbarButton(windowId) { const button = document.getElementById(`taskbar-${windowId}`); if (button) button.remove(); }
             function toggleStartMenu() { const isOpening = startMenu.classList.contains('hidden'); startMenu.classList.toggle('hidden'); if (isOpening && activeWindowId && openWindows[activeWindowId]) { openWindows[activeWindowId].element.classList.remove('active'); const btn = document.getElementById(`taskbar-${activeWindowId}`); if(btn) btn.classList.remove('active'); activeWindowId = null; } if (isOpening) { 
