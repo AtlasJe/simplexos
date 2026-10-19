@@ -1797,6 +1797,8 @@
                     <button data-command="createLink" title="Add Link"><i class="fa-solid fa-link"></i></button>
                     <button data-command="removeFormat" title="Clear Formatting"><i class="fa-solid fa-text-slash"></i></button>
                     <div class="separator" style="margin-left: auto;"></div>
+                    <button id="${appPrefix}-save" title="Save"><i class="fa-solid fa-save"></i> Save</button>
+                    <button id="${appPrefix}-save-in" title="Save In"><i class="fa-solid fa-file-export"></i> Save In</button>
                     <button id="${appPrefix}-export-txt" title="Export as Text File (.txt)" disabled><i class="fa-solid fa-file-alt"></i></button>
                     <button id="${appPrefix}-export-html" title="Export as HTML File (.html)" disabled><i class="fa-solid fa-file-code"></i></button>
                 </div>
@@ -1823,6 +1825,8 @@
         const notesRestoreInput = document.getElementById('notes-restore-input');
         const exportTxtBtn = contentEl.querySelector(`#${appPrefix}-export-txt`);
         const exportHtmlBtn = contentEl.querySelector(`#${appPrefix}-export-html`);
+        const saveBtn = contentEl.querySelector(`#${appPrefix}-save`);
+        const saveInBtn = contentEl.querySelector(`#${appPrefix}-save-in`);
 
         // --- State Variables ---
         let notes = [];
@@ -1932,6 +1936,8 @@
         const handleLinkCreation = async () => { editorEl.focus(); const selection = window.getSelection(); if (!selection || selection.rangeCount === 0) return; const range = selection.getRangeAt(0); const selectedText = selection.toString(); const url = await showOSPrompt('Enter the full URL:', 'Create Link', selectedText.startsWith('http') ? selectedText : 'https://'); if (!url) return; selection.removeAllRanges(); selection.addRange(range); document.execCommand('createLink', false, url); const parentElement = selection.anchorNode.parentElement; if (parentElement && parentElement.tagName === 'A') { parentElement.target = '_blank'; parentElement.rel = 'noopener noreferrer'; } scheduleSave(); };
 
         // --- Export, Backup, Restore, and Clear ---
+        const fileManagerDbRequest = (mode, action) => new Promise((resolve, reject) => { const req = indexedDB.open('simplexos-file-manager', 2); req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains('entries')) req.result.createObjectStore('entries', {keyPath: 'path'}); }; req.onsuccess = () => { const db = req.result; const tx = db.transaction('entries', mode); const result = action(tx.objectStore('entries')); tx.oncomplete = () => { db.close(); resolve(result); }; tx.onerror = () => reject(tx.error); }; req.onerror = () => reject(req.error); });
+        const saveNoteToFileManager = async (saveAs = false) => { if (!currentNoteId) return; const note = notes.find(n => n.id === currentNoteId); if (!note) return; saveNotes(false); let path = saveAs ? null : note.filePath; if (!path) { const defaultName = `${(note.title || 'Untitled Note').replace(/[<>:"/\\|?*]/g, '_')}.html`; const filename = await showOSPrompt('Save file as:', 'Save Note In', defaultName); if (!filename) return; path = filename.includes('/') ? filename : filename; if (!path.toLowerCase().endsWith('.html')) path += '.html'; } const content = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${note.title}</title></head><body><h1>${note.title}</h1>${note.body}</body></html>`; await fileManagerDbRequest('readwrite', store => store.put({path, name: path.split('/').pop(), kind: 'file', data: new Blob([content], {type: 'text/html;charset=utf-8'})})); note.filePath = path; note.lastModified = Date.now(); saveNotes(true); showOSAlert(`Saved in File Manager as ${path}`, 'Note Saved'); };
         const handleExport = async (format) => {
             if (!currentNoteId) return;
             const note = notes.find(n => n.id === currentNoteId);
@@ -1974,6 +1980,8 @@
         clearAllBtn.addEventListener('click', handleClearAll);
         exportTxtBtn.addEventListener('click', () => handleExport('txt'));
         exportHtmlBtn.addEventListener('click', () => handleExport('html'));
+        saveBtn.addEventListener('click', () => saveNoteToFileManager(false));
+        saveInBtn.addEventListener('click', () => saveNoteToFileManager(true));
 
         // --- Initialization & Cleanup ---
         loadNotes();
