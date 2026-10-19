@@ -2313,13 +2313,12 @@
             }
 
             function checkLockState() {
-                createLockScreenElements(); createWelcomeScreenElement();
-                const storedHash = localStorage.getItem(PASSWORD_HASH_KEY);
-                const skippedSetup = localStorage.getItem(PASSWORD_SETUP_SKIPPED_KEY) === 'true';
-                lockScreenOverlay.classList.remove('hidden');
-                if (storedHash) { loginScreen.classList.remove('hidden'); passwordSetupScreen.classList.add('hidden'); setTimeout(() => document.getElementById('login-password')?.focus(), 0); }
-                else if (skippedSetup) { unlockOS(); }
-                else { passwordSetupScreen.classList.remove('hidden'); loginScreen.classList.add('hidden'); setTimeout(() => document.getElementById('new-password')?.focus(), 0); }
+                // The lock screen is a demonstration only, so Simplex OS starts directly.
+                // Remove legacy credentials so an older installation cannot block access.
+                localStorage.removeItem(PASSWORD_HASH_KEY);
+                localStorage.removeItem(PASSWORD_SETUP_SKIPPED_KEY);
+                createWelcomeScreenElement();
+                unlockOS();
             }
 
             // --- Custom Context Menu ---
