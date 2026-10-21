@@ -2320,6 +2320,10 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
 .file-manager-name { flex: 1; cursor: pointer; }
 .file-manager-name i { width: 20px; color: var(--accent-primary); }
 .file-manager-row button { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.taskbar-app-button { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.taskbar-app-count { min-width: 16px; padding: 1px 4px; border-radius: 8px; background: var(--accent-primary); color: white; font-size: .7em; }
+.taskbar-app-close { margin-left: 3px; font-size: 1.1em; opacity: .65; }
+.taskbar-app-close:hover { opacity: 1; color: var(--accent-danger); }
 .app-installer-app {
     display: flex;
     flex-direction: column;
