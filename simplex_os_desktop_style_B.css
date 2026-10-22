@@ -397,6 +397,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 /* Taskbar App Buttons Area */
 #taskbar-apps {
     display: flex;
+    gap: 3px;
     height: 100%;
     flex-grow: 1;
     overflow-x: auto;
@@ -420,7 +421,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     color: var(--text-secondary);
     border: 1px solid var(--border-primary);
     padding: 0 10px;
-    margin: 0 2px;
+    margin: 0;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -430,13 +431,22 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     display: flex;
     align-items: center;
     font-size: 0.9em;
-    border-radius: 3px;
+    border-radius: 5px;
     transition: background-color 0.1s ease, opacity 0.2s ease, border-bottom-color 0.1s ease;
     border-bottom-width: 3px;
     border-bottom-style: solid;
     border-bottom-color: transparent;
     height: 30px;
     flex-shrink: 0;
+}
+.taskbar-app-button.pinned {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--text-primary);
+}
+.taskbar-app-button.pinned:hover {
+    background-color: var(--taskbar-button-hover);
+    border-color: var(--border-primary);
 }
 .taskbar-app-button .icon {
     margin-right: 5px;
