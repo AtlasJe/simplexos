@@ -848,6 +848,7 @@ body:not(.animations-disabled) #start-menu {
 }
 body:not(.animations-disabled) .window {
     transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+    animation: simplex-window-in 0.16s ease-out both;
 }
 .window.dragging,
 .window.resizing {
@@ -3001,6 +3002,31 @@ body.animations-disabled * {
     transition: none !important;
     animation: none !important;
 }
+
+/* --- Focused motion: short, functional feedback without visual noise --- */
+@keyframes simplex-window-in {
+    from { opacity: 0; transform: scale(0.985) translateY(5px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes simplex-taskbar-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes simplex-menu-item-in {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+body:not(.animations-disabled) .taskbar-app-button {
+    animation: simplex-taskbar-in 0.18s ease-out both;
+}
+.taskbar-app-button:active {
+    transform: translateY(1px);
+}
+body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li {
+    animation: simplex-menu-item-in 0.16s ease-out both;
+}
+body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li:nth-child(2n) { animation-delay: 0.015s; }
+body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li:nth-child(3n) { animation-delay: 0.03s; }
 
 /* ========================================================================== */
 /* --- DESKTOP WIDGETS --- */
