@@ -1746,13 +1746,13 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
     height: 100%;
     background-color: var(--bg-secondary);
     padding: 10px;
-    gap: 15px; /* Space between sections */
+    gap: 12px; /* Space between sections */
     overflow-y: auto;
 }
 .settings-section {
     background-color: var(--bg-primary);
-    padding: 15px 20px;
-    border-radius: 8px;
+    padding: 16px 20px;
+    border-radius: 6px;
     border: 1px solid var(--border-primary);
     flex-shrink: 0;
 }
@@ -1761,7 +1761,8 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
     margin-bottom: 0; /* Handled by group padding */
     padding-bottom: 10px;
     color: var(--text-secondary);
-    font-size: 1.1em;
+    font-size: 1.05em;
+    letter-spacing: 0.01em;
 }
 .settings-section h3 > i {
     margin-right: 8px;
@@ -1824,7 +1825,7 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
     background-color: var(--bg-tertiary);
     color: var(--text-primary);
     border: 1px solid var(--border-primary);
-    border-radius: 4px;
+    border-radius: 5px;
     padding: 5px 10px;
     font-size: 0.9em;
 }
@@ -1834,6 +1835,13 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
 }
 .settings-item button:hover {
     background-color: var(--border-primary);
+}
+.settings-item input:focus-visible,
+.settings-item select:focus-visible,
+.settings-item button:focus-visible,
+.settings-item .switch input:focus-visible + .slider {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
 }
 .settings-item button.danger {
     background-color: var(--accent-danger);
@@ -3027,6 +3035,50 @@ body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li {
 }
 body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li:nth-child(2n) { animation-delay: 0.015s; }
 body:not(.animations-disabled) #start-menu:not(.hidden) #app-list li:nth-child(3n) { animation-delay: 0.03s; }
+
+/* Shared app menus and toolbars: one quiet, predictable control language. */
+.textpad-toolbar,
+.notes-app-toolbar,
+.file-manager-toolbar,
+.browser-toolbar,
+.paint-toolbar,
+.iv-toolbar {
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+}
+.textpad-toolbar button,
+.notes-app-toolbar button,
+.file-manager-toolbar button,
+.browser-toolbar button,
+.paint-toolbar button,
+.iv-toolbar button {
+    min-height: 28px;
+    border-radius: 4px;
+    transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+.textpad-toolbar button:hover,
+.notes-app-toolbar button:hover,
+.file-manager-toolbar button:hover,
+.browser-toolbar button:hover,
+.paint-toolbar button:hover,
+.iv-toolbar button:hover {
+    border-color: var(--accent-primary);
+}
+.textpad-toolbar button:active,
+.notes-app-toolbar button:active,
+.file-manager-toolbar button:active,
+.browser-toolbar button:active,
+.paint-toolbar button:active,
+.iv-toolbar button:active {
+    transform: translateY(1px);
+}
+.file-manager-toolbar span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 /* ========================================================================== */
 /* --- DESKTOP WIDGETS --- */
