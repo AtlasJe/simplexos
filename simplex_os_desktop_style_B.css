@@ -566,7 +566,7 @@ body.animations-disabled .taskbar-preview-strip { transition: none; }
 /* Taskbar preview cards: compact and visually separate from the icon strip. */
 .taskbar-preview-strip {
     left: 50%;
-    bottom: calc(100% + 12px);
+    bottom: 48px;
     padding: 9px;
     gap: 9px;
     background: #202124;
