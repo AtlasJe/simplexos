@@ -554,9 +554,42 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 }
 .taskbar-preview-close:hover { background: var(--accent-danger); color: white; }
 .taskbar-preview-image { height: 112px; display: grid; place-items: center; overflow: hidden; background: var(--bg-secondary); }
-.taskbar-preview-app-icon { font-size: 42px; opacity: .78; }
-.taskbar-preview-app-icon img { width: 48px; height: 48px; object-fit: contain; }
+.taskbar-preview-placeholder { width: 100%; height: 100%; display: grid; place-items: center; color: var(--text-primary); }
+.taskbar-preview-placeholder > .icon { font-size: 30px; opacity: .75; }
+.taskbar-preview-placeholder .icon img { width: 38px; height: 38px; object-fit: contain; }
+.taskbar-preview-window-icon { display: none; }
+.taskbar-preview-close { opacity: 0; transition: opacity .12s ease, background-color .12s ease; }
+.taskbar-preview-card:hover .taskbar-preview-close,
+.taskbar-preview-close:focus-visible { opacity: 1; }
 body.animations-disabled .taskbar-preview-strip { transition: none; }
+
+/* Taskbar preview cards: compact and visually separate from the icon strip. */
+.taskbar-preview-strip {
+    left: 50%;
+    bottom: calc(100% + 12px);
+    padding: 9px;
+    gap: 9px;
+    background: #202124;
+    border-color: rgba(255,255,255,.14);
+    box-shadow: 0 10px 28px rgba(0,0,0,.38);
+}
+.taskbar-preview-card {
+    width: 260px;
+    min-width: 260px;
+    border-color: rgba(255,255,255,.12);
+    background: #292a2d;
+}
+.taskbar-preview-title { background: #303134; height: 36px; }
+.taskbar-preview-image { height: 145px; background: #17181a; }
+.taskbar-preview-close { flex: 0 0 27px; }
+#taskbar { gap: 7px; }
+#taskbar-apps { gap: 5px; padding: 0 4px; }
+.taskbar-app-button { border-radius: 6px; }
+.taskbar-app-button.active { background-color: var(--taskbar-button-active-bg); }
+@media (max-width: 640px) {
+    .taskbar-preview-strip { max-width: calc(100vw - 16px); }
+    .taskbar-preview-card { width: 220px; min-width: 220px; }
+}
 .taskbar-app-button:hover {
     background-color: var(--taskbar-button-hover);
 }
@@ -926,7 +959,7 @@ body:not(.animations-disabled) #start-menu {
     flex-direction: column;
     overflow: hidden; /* Important for content and resize */
     resize: both; /* Allows user resizing */
-    border-radius: 5px;
+    border-radius: 7px;
     z-index: 10; /* Default z-index */
     color: var(--text-primary);
     opacity: 1;
@@ -967,12 +1000,12 @@ body:not(.animations-disabled) .window {
 .window .title-bar {
     background-color: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-primary);
-    padding: 5px 8px;
+    padding: 5px 10px;
     cursor: grab;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 30px;
+    height: 34px;
     flex-shrink: 0; /* Prevent title bar from shrinking */
     user-select: none; /* Prevent text selection */
     color: var(--text-primary);
@@ -1841,6 +1874,7 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
     border-radius: 6px;
     border: 1px solid var(--border-primary);
     flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12);
 }
 .settings-section h3 {
     margin-top: 0;
@@ -1903,6 +1937,9 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
     align-items: center;
     gap: 10px;
 }
+.settings-item { gap: 16px; }
+.settings-item label:not(.switch) { line-height: 1.35; }
+.settings-group + .settings-group { margin-top: 2px; }
 
 /* Specific control styling */
 .settings-item input[type="color"],
@@ -1922,6 +1959,7 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
 .settings-item button:hover {
     background-color: var(--border-primary);
 }
+.settings-item button:active { transform: translateY(1px); }
 .settings-item input:focus-visible,
 .settings-item select:focus-visible,
 .settings-item button:focus-visible,
