@@ -485,7 +485,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     border-radius: 50%;
     opacity: 0.8;
 }
-.taskbar-app-button:has(.taskbar-preview-strip) { z-index: 1002; }
+.taskbar-app-button:has(.taskbar-preview-strip):hover { z-index: 1002; }
 .taskbar-preview-strip {
     position: absolute;
     left: 50%;
@@ -544,20 +544,9 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     cursor: pointer;
 }
 .taskbar-preview-close:hover { background: var(--accent-danger); color: white; }
-.taskbar-preview-image { height: 132px; overflow: hidden; background: var(--bg-secondary); pointer-events: none; }
-.taskbar-preview-snapshot {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    padding: 8px;
-    color: var(--text-primary);
-    font-size: 9px;
-    text-align: left;
-    transform-origin: top left;
-}
-.taskbar-preview-snapshot img,
-.taskbar-preview-snapshot video,
-.taskbar-preview-snapshot canvas { max-width: 100%; max-height: 100px; object-fit: contain; }
+.taskbar-preview-image { height: 112px; display: grid; place-items: center; overflow: hidden; background: var(--bg-secondary); }
+.taskbar-preview-app-icon { font-size: 42px; opacity: .78; }
+.taskbar-preview-app-icon img { width: 48px; height: 48px; object-fit: contain; }
 body.animations-disabled .taskbar-preview-strip { transition: none; }
 .taskbar-app-button .icon {
     margin-right: 5px;
