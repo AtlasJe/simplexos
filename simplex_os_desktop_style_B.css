@@ -485,6 +485,80 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     border-radius: 50%;
     opacity: 0.8;
 }
+.taskbar-app-button:has(.taskbar-preview-strip) { z-index: 1002; }
+.taskbar-preview-strip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 9px);
+    display: flex;
+    gap: 10px;
+    padding: 8px;
+    max-width: min(80vw, 680px);
+    overflow-x: auto;
+    background: var(--start-menu-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 5px);
+    transition: opacity .14s ease, transform .14s ease, visibility .14s;
+    pointer-events: none;
+}
+.taskbar-app-button:hover .taskbar-preview-strip,
+.taskbar-app-button:focus-visible .taskbar-preview-strip {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+.taskbar-preview-card {
+    width: 248px;
+    min-width: 248px;
+    overflow: hidden;
+    border: 1px solid var(--border-primary);
+    border-radius: 7px;
+    background: var(--bg-primary);
+    text-align: left;
+    cursor: default;
+}
+.taskbar-preview-title {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 9px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.taskbar-preview-title > span { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.taskbar-preview-title .icon { width: 16px; height: 16px; flex: 0 0 16px; }
+.taskbar-preview-close {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+}
+.taskbar-preview-close:hover { background: var(--accent-danger); color: white; }
+.taskbar-preview-image { height: 132px; overflow: hidden; background: var(--bg-secondary); pointer-events: none; }
+.taskbar-preview-snapshot {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 8px;
+    color: var(--text-primary);
+    font-size: 9px;
+    text-align: left;
+    transform-origin: top left;
+}
+.taskbar-preview-snapshot img,
+.taskbar-preview-snapshot video,
+.taskbar-preview-snapshot canvas { max-width: 100%; max-height: 100px; object-fit: contain; }
+body.animations-disabled .taskbar-preview-strip { transition: none; }
 .taskbar-app-button .icon {
     margin-right: 5px;
     font-size: 1.1em;
