@@ -3244,6 +3244,80 @@ body.animations-disabled * {
     .settings-item .controls { justify-content: flex-start; width: 100%; }
 }
 
+/* Reference direction: understated charcoal app shells on an ink/plum desktop. */
+:root {
+    --bg-primary-dark: #19191d;
+    --bg-secondary-dark: #111114;
+    --bg-tertiary-dark: #25252b;
+    --border-primary-dark: #38383f;
+    --border-secondary-dark: #2a2a30;
+    --accent-primary-dark: #8756ed;
+    --accent-primary-hover-dark: #a178f5;
+    --taskbar-bg-dark: rgba(37, 27, 55, .88);
+    --taskbar-button-active-bg-dark: rgba(137, 85, 236, .28);
+    --taskbar-button-hover-dark: rgba(255,255,255,.09);
+}
+body { background-color: #100d18; }
+#desktop {
+    background-color: #100d18;
+    background-image: radial-gradient(ellipse at 82% 16%, rgba(132, 74, 202, .42), transparent 42%),
+        radial-gradient(ellipse at 16% 88%, rgba(80, 47, 171, .32), transparent 40%),
+        linear-gradient(135deg, #100d18 0%, #171124 52%, #28203a 100%);
+}
+.window {
+    border: 1px solid #3a3942;
+    border-radius: 13px;
+    background: #19191d;
+    box-shadow: 0 18px 48px rgba(0,0,0,.42);
+}
+.window.active { box-shadow: 0 20px 52px rgba(0,0,0,.48); }
+.window .title-bar,
+.window.active .title-bar {
+    height: 46px;
+    min-height: 46px;
+    padding: 0 12px 0 16px;
+    border: 0;
+    border-bottom: 1px solid #303036;
+    background: #1d1d22;
+    color: #f5f3f8;
+}
+.window .title-bar .title { font-weight: 600; gap: 9px; }
+.window .title-bar .title .icon { color: #c3a7ff; }
+.window .title-bar .window-controls button { min-width: 38px; height: 30px; border-radius: 6px; }
+.window .title-bar .window-controls button.close-button:hover { background: #c83e54; }
+.window .window-content { background: #111114; padding: 14px; }
+.settings-app { background: #111114; padding: 16px; gap: 12px; }
+.settings-section {
+    background: #19191e;
+    border: 1px solid #303037;
+    border-radius: 10px;
+    padding: 0 18px 14px;
+}
+.settings-section h3.settings-section-toggle { min-height: 50px; color: #f4f1fa; font-size: 1.02rem; }
+.settings-section h3.settings-section-toggle .collapse-icon { color: #bca3f5; }
+.settings-subsection-title { color: #bca3f5; border-color: #303037; }
+.settings-item { border-color: rgba(255,255,255,.065); }
+.settings-item label:not(.switch) { color: #dedbe5; }
+.settings-item button, .settings-item select { background: #28272e; border-color: #3c3a44; }
+.settings-item button:hover, .settings-item select:hover { background: #34323b; border-color: #6b5790; }
+.browser-toolbar, .textpad-toolbar, .notes-app-toolbar, .file-manager-toolbar,
+.paint-toolbar.top-toolbar, .iv-toolbar {
+    background: #19191e;
+    border-bottom: 1px solid #303037;
+    border-radius: 8px 8px 0 0;
+}
+.browser-toolbar button, .textpad-toolbar button, .notes-app-toolbar button,
+.file-manager-toolbar button, .paint-toolbar.top-toolbar button, .iv-toolbar button {
+    background: #29282f;
+    border-color: #3a3942;
+}
+.browser-toolbar button:hover, .textpad-toolbar button:hover, .notes-app-toolbar button:hover,
+.file-manager-toolbar button:hover, .paint-toolbar.top-toolbar button:hover, .iv-toolbar button:hover {
+    background: #393640;
+    border-color: #68558c;
+}
+.browser-toolbar input[type="text"] { background: #111114; border-color: #393840; }
+
 /* --- Focused motion: short, functional feedback without visual noise --- */
 @keyframes simplex-window-in {
     from { opacity: 0; transform: scale(0.985) translateY(5px); }
