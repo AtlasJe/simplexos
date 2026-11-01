@@ -360,13 +360,15 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     left: 0;
     width: 100%;
     height: 40px; /* Default height */
-    background-color: var(--taskbar-bg);
+    background-color: color-mix(in srgb, var(--taskbar-bg) 78%, transparent);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    padding: 0 5px;
+    padding: 0 12px;
     z-index: 1000;
-    border-top: 1px solid var(--border-primary);
+    border-top: 1px solid color-mix(in srgb, var(--border-primary) 55%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     transition: height 0.2s ease-out; /* For scrollbar adjustment */
 }
 
@@ -397,13 +399,20 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 /* Taskbar App Buttons Area */
 #taskbar-apps {
     display: flex;
-    gap: 3px;
-    height: 100%;
-    flex-grow: 1;
+    gap: 7px;
+    height: 42px;
+    flex: 0 1 auto;
+    max-width: min(68vw, 820px);
     overflow-x: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--taskbar-bg);
-    align-items: center; /* Default alignment */
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 10px;
+    border: 1px solid color-mix(in srgb, var(--border-primary) 65%, transparent);
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--bg-primary) 48%, transparent);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, .18);
 }
 #taskbar-apps::-webkit-scrollbar {
     height: 4px; /* Default scrollbar height */
@@ -419,7 +428,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 .taskbar-app-button {
     background-color: var(--taskbar-button-bg);
     color: var(--text-secondary);
-    border: 1px solid var(--border-primary);
+    border: 1px solid transparent;
     padding: 0 10px;
     margin: 0;
     cursor: pointer;
@@ -436,7 +445,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     border-bottom-width: 3px;
     border-bottom-style: solid;
     border-bottom-color: transparent;
-    height: 30px;
+    height: 36px;
     flex-shrink: 0;
 }
 .taskbar-app-button.pinned {
@@ -450,21 +459,21 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 }
 .taskbar-app-button {
     position: relative;
-    width: 42px;
-    min-width: 42px;
-    max-width: 42px;
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
     justify-content: center;
     padding: 0;
 }
 .taskbar-app-button .icon {
     margin: 0;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     font-size: 1.2em;
 }
 .taskbar-app-button .icon img {
-    max-width: 20px;
-    max-height: 20px;
+    max-width: 22px;
+    max-height: 22px;
 }
 .taskbar-app-indicator {
     position: absolute;
@@ -548,42 +557,19 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
 .taskbar-preview-app-icon { font-size: 42px; opacity: .78; }
 .taskbar-preview-app-icon img { width: 48px; height: 48px; object-fit: contain; }
 body.animations-disabled .taskbar-preview-strip { transition: none; }
-.taskbar-app-button .icon {
-    margin-right: 5px;
-    font-size: 1.1em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    width: 16px;
-    height: 16px;
-}
-.taskbar-app-button .icon img {
-    max-width: 16px;
-    max-height: 16px;
-    vertical-align: middle;
-}
-.taskbar-app-button .taskbar-app-name {
-    flex-grow: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 .taskbar-app-button:hover {
     background-color: var(--taskbar-button-hover);
 }
 .taskbar-app-button.active {
     background-color: var(--taskbar-button-active-bg);
-    border-bottom-color: var(--accent-primary);
+    border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent);
 }
 .taskbar-app-button.minimized {
     opacity: 0.7;
-    border-bottom-color: var(--border-secondary);
-    background-color: var(--taskbar-button-bg);
+    background-color: transparent;
 }
 .taskbar-app-button.minimized.active { /* When minimized but still the "focused" one if restored */
     opacity: 0.9;
-    border-bottom-color: var(--accent-primary);
     background-color: var(--taskbar-button-active-bg);
 }
 
@@ -2454,10 +2440,7 @@ input[type=range].progress-bar { color: var(--accent-primary); /* For some brows
 .file-manager-name { flex: 1; cursor: pointer; }
 .file-manager-name i { width: 20px; color: var(--accent-primary); }
 .file-manager-row button { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; }
-.taskbar-app-button { position: relative; display: inline-flex; align-items: center; gap: 6px; }
-.taskbar-app-count { min-width: 16px; padding: 1px 4px; border-radius: 8px; background: var(--accent-primary); color: white; font-size: .7em; }
-.taskbar-app-close { margin-left: 3px; font-size: 1.1em; opacity: .65; }
-.taskbar-app-close:hover { opacity: 1; color: var(--accent-danger); }
+.taskbar-app-button { position: relative; display: inline-flex; align-items: center; justify-content: center; }
 .app-installer-app {
     display: flex;
     flex-direction: column;
