@@ -3138,6 +3138,112 @@ body.animations-disabled * {
     animation: none !important;
 }
 
+/* Simplex desktop app surfaces: consistent, compact and task-focused. */
+.window {
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.32);
+    background: var(--bg-primary);
+}
+.window.active { box-shadow: 0 14px 36px rgba(0,0,0,.38); }
+.window .title-bar {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 10px 0 13px;
+    background: #292a2d;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.window.active .title-bar {
+    background: #292a2d;
+    color: var(--text-primary);
+    border-bottom-color: rgba(255,255,255,.1);
+}
+.window .title-bar .window-controls button { min-width: 34px; height: 28px; border-radius: 5px; }
+.window.active .title-bar .window-controls button.close-button:hover { background: #c42b1c; }
+.window .window-content { background: var(--bg-secondary); padding: 12px; }
+
+.settings-app {
+    gap: 10px;
+    padding: 14px;
+    background: #191a1d;
+}
+.settings-section {
+    padding: 0 16px 14px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 7px;
+    background: #222326;
+    box-shadow: none;
+}
+.settings-section h3.settings-section-toggle {
+    min-height: 46px;
+    padding: 0;
+    color: #f3f3f3;
+    font-size: 1rem;
+}
+.settings-section h3.settings-section-toggle .collapse-icon { color: #aeb4bd; font-size: .78rem; }
+.settings-section .settings-section-content { margin-top: 4px; }
+.settings-subsection-title {
+    padding: 14px 0 7px;
+    margin: 3px 0 8px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+    color: #b9c0ca;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+}
+.settings-item {
+    min-height: 42px;
+    margin: 0;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,.055);
+}
+.settings-item:last-child { border-bottom: 0; }
+.settings-item label:not(.switch) { color: #e0e2e6; font-size: .9rem; }
+.settings-item .controls { flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.settings-item input[type="color"] { width: 42px; height: 30px; padding: 3px; }
+.settings-item button, .settings-item select {
+    min-height: 32px;
+    border-color: rgba(255,255,255,.14);
+    background: #303135;
+    border-radius: 5px;
+}
+.settings-item button:hover, .settings-item select:hover { background: #3a3b40; border-color: rgba(255,255,255,.24); }
+.settings-item .preset-buttons button { min-width: 66px; }
+.settings-footer { padding: 10px 2px 0; color: #969ba4; font-size: .78rem; }
+
+.browser-toolbar, .textpad-toolbar, .notes-app-toolbar, .file-manager-toolbar, .paint-toolbar.top-toolbar, .iv-toolbar {
+    padding: 7px;
+    gap: 6px;
+    background: #242528;
+    border: 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.browser-toolbar button, .textpad-toolbar button, .notes-app-toolbar button,
+.file-manager-toolbar button, .paint-toolbar.top-toolbar button, .iv-toolbar button {
+    min-height: 32px;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 5px;
+    background: #303135;
+    color: #e8e9eb;
+}
+.browser-toolbar button:hover, .textpad-toolbar button:hover, .notes-app-toolbar button:hover,
+.file-manager-toolbar button:hover, .paint-toolbar.top-toolbar button:hover, .iv-toolbar button:hover {
+    background: #3b3c41;
+    border-color: rgba(255,255,255,.22);
+}
+.browser-toolbar input[type="text"] { min-height: 34px; border-radius: 5px; background: #191a1d; border-color: rgba(255,255,255,.14); }
+.file-manager-toolbar button { padding: 6px 10px; }
+.file-manager-toolbar span { color: #b9bec7; }
+.settings-app input[type="checkbox"], .settings-app input[type="radio"], .settings-app input[type="range"] { accent-color: var(--accent-primary); }
+.settings-app :focus-visible, .window :focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+@media (max-width: 680px) {
+    .settings-app { padding: 9px; }
+    .settings-section { padding: 0 12px 10px; }
+    .settings-item { align-items: flex-start; flex-direction: column; gap: 7px; }
+    .settings-item .controls { justify-content: flex-start; width: 100%; }
+}
+
 /* --- Focused motion: short, functional feedback without visual noise --- */
 @keyframes simplex-window-in {
     from { opacity: 0; transform: scale(0.985) translateY(5px); }
