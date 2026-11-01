@@ -448,6 +448,43 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     background-color: var(--taskbar-button-hover);
     border-color: var(--border-primary);
 }
+.taskbar-app-button {
+    position: relative;
+    width: 42px;
+    min-width: 42px;
+    max-width: 42px;
+    justify-content: center;
+    padding: 0;
+}
+.taskbar-app-button .icon {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 1.2em;
+}
+.taskbar-app-button .icon img {
+    max-width: 20px;
+    max-height: 20px;
+}
+.taskbar-app-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    background: var(--accent-primary);
+}
+.taskbar-app-indicator.is-open {
+    width: 16px;
+    height: 2px;
+    border-radius: 2px;
+}
+.taskbar-app-indicator.is-minimized {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    opacity: 0.8;
+}
 .taskbar-app-button .icon {
     margin-right: 5px;
     font-size: 1.1em;
