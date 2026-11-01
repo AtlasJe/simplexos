@@ -485,7 +485,7 @@ body.animations-disabled #desktop.icons-hidden .desktop-icon {
     border-radius: 50%;
     opacity: 0.8;
 }
-.taskbar-app-button:has(.taskbar-preview-strip):hover { z-index: 1002; }
+.taskbar-app-button:hover { z-index: 1002; }
 .taskbar-preview-strip {
     position: absolute;
     left: 50%;
